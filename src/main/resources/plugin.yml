@@ -1,0 +1,4 @@
+name: smp
+version: '1.0-SNAPSHOT'
+main: zaman.plugin.smp.Smp
+api-version: '1.21'
