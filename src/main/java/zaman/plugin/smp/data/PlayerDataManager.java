@@ -7,12 +7,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.UUID;
 
 public class PlayerDataManager {
     private final DatabaseManager db;
     private final HashMap<UUID, PlayerData> cache;
+
+    private static final ZoneId KOREA_ZONE = ZoneId.of("Asia/Seoul");
 
     public PlayerDataManager(DatabaseManager db) {
         this.db = db;
@@ -150,7 +153,7 @@ public class PlayerDataManager {
         if (data == null) return false;
 
         String lastAttendance = data.getLastAttendance();
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(KOREA_ZONE);
 
         if (lastAttendance != null) {
             LocalDate lastDate = LocalDate.parse(lastAttendance);
@@ -158,6 +161,7 @@ public class PlayerDataManager {
                 return false;
             }
         }
+        data.setLastAttendance(LocalDate.now(KOREA_ZONE).toString());
         return true;
     }
 }
