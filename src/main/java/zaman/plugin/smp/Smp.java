@@ -4,8 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import zaman.plugin.smp.data.DatabaseManager;
 import zaman.plugin.smp.data.PlayerDataManager;
-import zaman.plugin.smp.listeners.PlayerJoinListener;
-import zaman.plugin.smp.listeners.PlayerQuitListener;
+import zaman.plugin.smp.listener.PlayerJoinListener;
+import zaman.plugin.smp.listener.PlayerQuitListener;
 
 public final class Smp extends JavaPlugin {
     private DatabaseManager databaseManager;

@@ -1,4 +1,4 @@
-package zaman.plugin.smp.listeners;
+package zaman.plugin.smp.listener;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
