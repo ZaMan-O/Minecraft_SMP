@@ -1,15 +1,19 @@
 package zaman.plugin.smp;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import zaman.plugin.smp.data.DatabaseManager;
 import zaman.plugin.smp.data.PlayerDataManager;
 import zaman.plugin.smp.listener.PlayerJoinListener;
 import zaman.plugin.smp.listener.PlayerQuitListener;
+import zaman.plugin.smp.utility.ScoreboardUtil;
 
 public final class Smp extends JavaPlugin {
     private DatabaseManager databaseManager;
     private PlayerDataManager playerDataManager;
+    private ScoreboardUtil scoreboardUtil;
 
     @Override
     public void onEnable() {
@@ -22,14 +26,25 @@ public final class Smp extends JavaPlugin {
         databaseManager.connect();
         databaseManager.createTables();
 
-        playerDataManager = new PlayerDataManager(databaseManager);
+        playerDataManager = new PlayerDataManager(databaseManager, this);
 
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             playerDataManager.saveAllPlayers();
         }, 6000L, 6000L);
 
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(playerDataManager), this);
+        scoreboardUtil = new ScoreboardUtil(playerDataManager);
+
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(playerDataManager, scoreboardUtil), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(playerDataManager), this);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    scoreboardUtil.updateStatsScoreboard(player);
+                }
+            }
+        }.runTaskTimer(this, 0, 20L);
     }
 
     @Override
