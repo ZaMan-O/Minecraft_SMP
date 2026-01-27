@@ -10,8 +10,10 @@ import java.sql.Statement;
 public class DatabaseManager {
     private Connection connection;
     private final String dbPath;
+    private final JavaPlugin plugin;
 
     public DatabaseManager(JavaPlugin plugin) {
+        this.plugin = plugin;
         this.dbPath = plugin.getDataFolder().getAbsolutePath() + "/database.db";
     }
 
@@ -21,14 +23,15 @@ public class DatabaseManager {
                     CREATE TABLE IF NOT EXISTS player_data (
                         uuid TEXT PRIMARY KEY,
                         name TEXT NOT NULL,
-                        cash INTEGER DEFAULT 0,
-                        coin INTEGER DEFAULT 0,
-                        orb INTEGER DEFAULT 0,
+                        coin INTEGER DEFAULT 1000,
+                        gem INTEGER DEFAULT 0,
                         last_attendance TEXT
                     );
                     """;
-            System.out.println("테이블 생성 완료");
+            stmt.executeUpdate(sql);
+            plugin.getLogger().info("Table Created Successfully");
         } catch (SQLException e) {
+            plugin.getLogger().info("Table Creation Failed");
             e.printStackTrace();
         }
     }
@@ -37,8 +40,9 @@ public class DatabaseManager {
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-            System.out.println("SQLite 연결 성공");
+            plugin.getLogger().info("SQLite Connected Successfully");
         } catch (ClassNotFoundException | SQLException e) {
+            plugin.getLogger().info("SQLite Connection Failed");
             e.printStackTrace();
         }
     }
@@ -51,9 +55,10 @@ public class DatabaseManager {
         try {
             if (connection != null && !connection.isClosed()) {
                 connection.close();
-                System.out.println("SQLite 연결 종료");
+                plugin.getLogger().info("SQLite Disconnected Successfully");
             }
         } catch (SQLException e) {
+            plugin.getLogger().info("SQLite Disconnection Failed");
             e.printStackTrace();
         }
     }

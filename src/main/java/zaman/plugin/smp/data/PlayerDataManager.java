@@ -1,6 +1,8 @@
 package zaman.plugin.smp.data;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import zaman.plugin.smp.data.dto.PlayerData;
 
 import java.sql.PreparedStatement;
@@ -13,12 +15,14 @@ import java.util.UUID;
 
 public class PlayerDataManager {
     private final DatabaseManager db;
+    private final JavaPlugin plugin;
     private final HashMap<UUID, PlayerData> cache;
 
     private static final ZoneId KOREA_ZONE = ZoneId.of("Asia/Seoul");
 
-    public PlayerDataManager(DatabaseManager db) {
+    public PlayerDataManager(DatabaseManager db, JavaPlugin plugin) {
         this.db = db;
+        this.plugin = plugin;
         this.cache = new HashMap<>();
     }
 
@@ -31,22 +35,27 @@ public class PlayerDataManager {
             if (rs.next()) {
                 PlayerData data = new PlayerData(
                         rs.getString("name"),
-                        rs.getInt("cash"),
                         rs.getInt("coin"),
-                        rs.getInt("orb"),
+                        rs.getInt("gem"),
                         rs.getString("last_attendance")
                 );
                 cache.put(uuid, data);
-                System.out.println(name + " 데이터 로드 완료");
+                plugin.getLogger().info(name + " Data Load Complete");
             } else {
                 createNewPlayer(uuid, name);
 
-                PlayerData data = new PlayerData(name, 0, 0, 0, null);
+                PlayerData data = new PlayerData(name, 1000, 0, null);
                 cache.put(uuid, data);
-                System.out.println(name + " 신규 플레이어 생성");
+                plugin.getLogger().info(name + " New Player Data Created");
             }
         } catch (SQLException e) {
+            plugin.getLogger().severe(name + " Data Load Failed");
             e.printStackTrace();
+
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                player.kickPlayer("§c§l데이터 로드 실패!\n§c잠시 후 다시 접속해주세요.");
+            }
         }
     }
 
@@ -58,6 +67,7 @@ public class PlayerDataManager {
             pstmt.setString(2, name);
             pstmt.executeUpdate();
         } catch (SQLException e) {
+            plugin.getLogger().info(name + " Data Create Failed!");
             e.printStackTrace();
         }
     }
@@ -70,50 +80,34 @@ public class PlayerDataManager {
         PlayerData data = cache.get(uuid);
         if (data == null) return;
 
-        String sql = "UPDATE player_data SET name = ?, cash = ?, coin = ?, orb = ?, last_attendance = ? WHERE uuid = ?";
+        String sql = "UPDATE player_data SET name = ?, coin = ?, gem = ?, last_attendance = ? WHERE uuid = ?";
 
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, data.getName());
-            pstmt.setInt(2, data.getCash());
-            pstmt.setInt(3, data.getCoin());
-            pstmt.setInt(4, data.getOrb());
-            pstmt.setString(5, data.getLastAttendance());
-            pstmt.setString(6, uuid.toString());
+            pstmt.setInt(2, data.getCoin());
+            pstmt.setInt(3, data.getGem());
+            pstmt.setString(4, data.getLastAttendance());
+            pstmt.setString(5, uuid.toString());
             pstmt.executeUpdate();
 
-            System.out.println(data.getName() + " 데이터 저장 완료");
+            plugin.getLogger().info(data.getName() + " Data Save Complete");
         } catch (SQLException e) {
+            plugin.getLogger().info(data.getName() + " Data Save Failed");
             e.printStackTrace();
         }
     }
 
     public void saveAllPlayers() {
-        System.out.println("전체 플레이어 데이터 저장 시작");
+        plugin.getLogger().info("All Player Data Saving...");
         for (UUID uuid : cache.keySet()) {
             savePlayer(uuid);
         }
-        System.out.println("전체 플레이어 데이터 저장 완료");
+        plugin.getLogger().info("All Player Data Save Complete");
     }
 
     public void unloadPlayer(UUID uuid) {
         savePlayer(uuid);
         cache.remove(uuid);
-    }
-
-    public void addCash(UUID uuid, int amount) {
-        PlayerData data = cache.get(uuid);
-        if (data != null) {
-            data.setCash(data.getCash() + amount);
-        }
-    }
-
-    public boolean subtractCash(UUID uuid, int amount) {
-        PlayerData data = cache.get(uuid);
-        if (data != null && data.getCash() >= amount) {
-            data.setCash(data.getCash() - amount);
-            return true;
-        }
-        return false;
     }
 
     public void addCoin(UUID uuid, int amount) {
@@ -132,17 +126,17 @@ public class PlayerDataManager {
         return false;
     }
 
-    public void addOrb(UUID uuid, int amount) {
+    public void addGem(UUID uuid, int amount) {
         PlayerData data = cache.get(uuid);
         if (data != null) {
-            data.setOrb(data.getOrb() + amount);
+            data.setGem(data.getGem() + amount);
         }
     }
 
-    public boolean subtractOrb(UUID uuid, int amount) {
+    public boolean subtractGem(UUID uuid, int amount) {
         PlayerData data = cache.get(uuid);
-        if (data != null && data.getOrb() >= amount) {
-            data.setOrb(data.getOrb() - amount);
+        if (data != null && data.getGem() >= amount) {
+            data.setGem(data.getGem() - amount);
             return true;
         }
         return false;

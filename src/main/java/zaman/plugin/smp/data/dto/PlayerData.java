@@ -2,16 +2,14 @@ package zaman.plugin.smp.data.dto;
 
 public class PlayerData {
     private String name;
-    private int cash;
     private int coin;
-    private int orb;
+    private int gem;
     private String lastAttendance;
 
-    public PlayerData(String name, int cash, int coin, int orb, String lastAttendance) {
+    public PlayerData(String name, int coin, int gem, String lastAttendance) {
         this.name = name;
-        this.cash = cash;
         this.coin = coin;
-        this.orb = orb;
+        this.gem = gem;
         this.lastAttendance = lastAttendance;
     }
 
@@ -19,16 +17,12 @@ public class PlayerData {
         return name;
     }
 
-    public int getCash() {
-        return cash;
-    }
-
     public int getCoin() {
         return coin;
     }
 
-    public int getOrb() {
-        return orb;
+    public int getGem() {
+        return gem;
     }
 
     public String getLastAttendance() {
@@ -39,16 +33,12 @@ public class PlayerData {
         this.name = name;
     }
 
-    public void setCash(int cash) {
-        this.cash = cash;
-    }
-
     public void setCoin(int coin) {
         this.coin = coin;
     }
 
-    public void setOrb(int orb) {
-        this.orb = orb;
+    public void setGem(int gem) {
+        this.gem = gem;
     }
 
     public void setLastAttendance(String lastAttendance) {
