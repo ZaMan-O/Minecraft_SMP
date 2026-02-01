@@ -21,7 +21,7 @@ public class ScoreboardUtil {
         Objective objective = scoreboard.registerNewObjective(
                 "stats",
                 "dummy",
-                "\uE004 §4하드코어 §c반야생 서버 \uE004"
+                "\uE004 §4하드코어 §c반야생 서버 §f\uE004"
         );
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         player.setScoreboard(scoreboard);
