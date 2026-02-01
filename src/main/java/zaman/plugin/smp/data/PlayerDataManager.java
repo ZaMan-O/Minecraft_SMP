@@ -24,6 +24,10 @@ public class PlayerDataManager {
         this.db = db;
         this.plugin = plugin;
         this.cache = new HashMap<>();
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            loadPlayer(p.getUniqueId(), p.getName());
+        }
     }
 
     public void loadPlayer(UUID uuid, String name) {
